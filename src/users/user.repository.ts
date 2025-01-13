@@ -1,16 +1,21 @@
-import { EntityRepository, Repository } from 'typeorm';
+import {
+  Injectable,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserRole } from './user-role.enum';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import {
-  ConflictException,
-  InternalServerErrorException,
-} from '@nestjs/common';
 
-@EntityRepository(User)
+@Injectable()
 export class UserRepository extends Repository<User> {
+  constructor(private readonly dataSource: DataSource) {
+    super(User, dataSource.createEntityManager());
+  }
+
   async createUser(
     createUserDto: CreateUserDto,
     role: UserRole,
@@ -26,9 +31,10 @@ export class UserRepository extends Repository<User> {
     user.salt = await bcrypt.genSalt();
     user.password = await this.hashPassword(password, user.salt);
     try {
-      await user.save();
+      await this.save(user); // Use o método save do repositório
       delete user.password;
       delete user.salt;
+      console.log('Repositório - Dados salvos:', user);
       return user;
     } catch (error) {
       if (error.code.toString() === '23505') {
