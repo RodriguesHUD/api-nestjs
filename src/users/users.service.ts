@@ -13,7 +13,6 @@ export class UsersService {
   ) {}
 
   async createAdminUser(createUserDto: CreateUserDto): Promise<User> {
-    console.log('Service - Dados enviados ao repositório:', createUserDto);
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('As senhas não conferem');
     } else {

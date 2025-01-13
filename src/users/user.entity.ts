@@ -8,6 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import * as bcrypt from 'bcrypt';
+
 @Entity()
 @Unique(['email'])
 export class User extends BaseEntity {
@@ -43,4 +45,30 @@ export class User extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // TODO: salvar data em horario de brasilia
+  // @CreateDateColumn()
+  // createdAt: Date;
+
+  // @BeforeInsert()
+  // setCreatedAt() {
+  //   this.createdAt = new Date(
+  //     new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+  //   );
+  // }
+
+  // @UpdateDateColumn()
+  // updatedAt: Date;
+
+  // @BeforeUpdate()
+  // setUpdateAt() {
+  //   this.updatedAt = new Date(
+  //     new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+  //   );
+  // }
+
+  async checkPassword(password: string): Promise<boolean> {
+    const hash = await bcrypt.hash(password, this.salt);
+    return hash === this.password;
+  }
 }
