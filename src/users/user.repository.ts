@@ -9,6 +9,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UserRole } from './user-role.enum';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { CredentialsDto } from './dtos/credentials-user.dto';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -44,6 +45,24 @@ export class UserRepository extends Repository<User> {
           'Erro ao salvar o usuário no banco de dados',
         );
       }
+    }
+  }
+
+  async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {
+    const { email, password } = credentialsDto;
+
+    // Log para verificar os dados recebidos
+    console.log('Dados recebidos:', credentialsDto);
+
+    const user = await this.findOne({ where: { email, status: true } });
+
+    // Log para verificar se o usuário foi encontrado
+    console.log('Usuário encontrado:', user);
+
+    if (user && (await user.checkPassword(password))) {
+      return user;
+    } else {
+      return null;
     }
   }
 

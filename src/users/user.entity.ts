@@ -68,7 +68,9 @@ export class User extends BaseEntity {
   // }
 
   async checkPassword(password: string): Promise<boolean> {
+    console.log('Verificando a senha...');
     const hash = await bcrypt.hash(password, this.salt);
+    console.log('Senha conferida:', hash);
     return hash === this.password;
   }
 }
